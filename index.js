@@ -2,13 +2,14 @@ const express = require('express')
 const mongoose = require('mongoose');
 const app = express()
 
+let PORT = process.env.PORT || 4000;
 
 
 app.get('/', (req,res) => {
      res.send("Hello from Node API Server");
 });
 
-mongoose.connect('mongodb+srv://ibnmudi:gvhwpnHF89u265vC@backend.yhszl.mongodb.net/?retryWrites=true&w=majority&appName=backend')
+mongoose.connect(process.env.MONGODB_URL)
   .then(() => console.log('Connected to Database!'))
   .catch(()=>{
     console.log('Connection failed!');
@@ -16,6 +17,6 @@ mongoose.connect('mongodb+srv://ibnmudi:gvhwpnHF89u265vC@backend.yhszl.mongodb.n
 
   
 
-app.listen(4000,()=> {
-    console.log('Server running on port 4000');
+app.listen(PORT,()=> {
+    console.log(`Server running on port ${PORT}`);
 })
