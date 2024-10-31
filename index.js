@@ -3,11 +3,15 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const Product = require('./models/product.model.js');
 
-const app = express();
-app.use(express.json());
-
 let PORT = process.env.PORT || 4000;
 
+// middlewares
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
+
+// routes
+app.use('/api/products', productRoutes);
 
 
 app.get('/', (req,res) => {
@@ -15,12 +19,7 @@ app.get('/', (req,res) => {
 });
 
 app.post('/api/products', async (req, res) => {
-  try {
-    const product = await Product.create(req.body);
-    res.status(200).json(product);
-  } catch (error) {
-    res.status(500).json({message:error.message});
-  }
+  
 });
 
 app.get('/api/products', async (req, res)=> {
@@ -32,7 +31,7 @@ app.get('/api/products', async (req, res)=> {
   }
 });
 
-app.get('/api/product/:id', async (req, res)=> {
+app.get('/api/products/:id', async (req, res)=> {
   try {
     const {id} = req.params;
       const product = await Product.findById(id);
@@ -43,7 +42,7 @@ app.get('/api/product/:id', async (req, res)=> {
 });
 
 // update
-app.put('/api/product/:id', async (req, res)=> {
+app.put('/api/products/:id', async (req, res)=> {
   try {
     const {id} = req.params;
       const product = await Product.findByIdAndUpdate(id, req.body);
@@ -56,6 +55,29 @@ app.put('/api/product/:id', async (req, res)=> {
       res.status(200).json(updatedProduct);
   } catch (error) {
       res.status(500).json({message: error.message});
+  }
+});
+
+// delete 
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate ObjectId format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid product ID format" });
+    }
+
+    const product = await Product.findByIdAndDelete(id);
+
+    if(!product){
+      return res.status(404).json({ message:"Product not found" });
+    }
+
+    return res.status(200).json({ message: "Product Deleted successfully"})
+    
+  } catch (error) {
+    res.status(500).json({ message: error.message});
   }
 });
 
